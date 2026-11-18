@@ -8,6 +8,7 @@
   <meta name="description" content="Sampsons Wallpaper Engine — Make your desktop yours.">
   <title>Sampsons Wallpaper Engine</title>
   <link rel="icon" href="assets/logo.png">
+
   <style>
     :root {
       --bg: #0d0b14;
@@ -17,9 +18,15 @@
       --muted: #aaa3ba;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-    html { scroll-behavior: smooth; }
+    html {
+      scroll-behavior: smooth;
+    }
 
     body {
       background: var(--bg);
@@ -28,7 +35,10 @@
       line-height: 1.6;
     }
 
-    a { color: inherit; text-decoration: none; }
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
 
     header {
       position: sticky;
@@ -57,10 +67,21 @@
       font-size: 18px;
     }
 
-    .brand img { width: 40px; height: 40px; object-fit: contain; }
+    .brand img {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+    }
 
-    .nav-links { display: flex; gap: 25px; color: var(--muted); }
-    .nav-links a:hover { color: white; }
+    .nav-links {
+      display: flex;
+      gap: 25px;
+      color: var(--muted);
+    }
+
+    .nav-links a:hover {
+      color: white;
+    }
 
     .hero {
       max-width: 1100px;
@@ -116,10 +137,23 @@
       transition: .2s;
     }
 
-    .btn-primary { background: var(--purple); color: white; }
-    .btn-primary:hover { background: #a47bff; transform: translateY(-2px); }
-    .btn-secondary { border: 1px solid #514761; }
-    .btn-secondary:hover { background: var(--panel); }
+    .btn-primary {
+      background: var(--purple);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #a47bff;
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      border: 1px solid #514761;
+    }
+
+    .btn-secondary:hover {
+      background: var(--panel);
+    }
 
     .preview {
       max-width: 950px;
@@ -144,9 +178,18 @@
       padding: 30px;
     }
 
-    .preview-inner img { width: 100px; margin-bottom: 15px; }
-    .preview-inner strong { font-size: 24px; }
-    .preview-inner small { color: var(--muted); }
+    .preview-inner img {
+      width: 100px;
+      margin-bottom: 15px;
+    }
+
+    .preview-inner strong {
+      font-size: 24px;
+    }
+
+    .preview-inner small {
+      color: var(--muted);
+    }
 
     section {
       max-width: 1100px;
@@ -154,9 +197,19 @@
       padding: 75px 24px;
     }
 
-    .section-heading { text-align: center; margin-bottom: 40px; }
-    .section-heading h2 { font-size: 36px; margin-bottom: 10px; }
-    .section-heading p { color: var(--muted); }
+    .section-heading {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .section-heading h2 {
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+
+    .section-heading p {
+      color: var(--muted);
+    }
 
     .features {
       display: grid;
@@ -171,9 +224,18 @@
       padding: 25px;
     }
 
-    .feature .emoji { font-size: 28px; }
-    .feature h3 { margin: 14px 0 8px; }
-    .feature p { color: var(--muted); font-size: 14px; }
+    .feature .emoji {
+      font-size: 28px;
+    }
+
+    .feature h3 {
+      margin: 14px 0 8px;
+    }
+
+    .feature p {
+      color: var(--muted);
+      font-size: 14px;
+    }
 
     .download-panel {
       text-align: center;
@@ -183,8 +245,15 @@
       background: linear-gradient(135deg, #25183b, #151020);
     }
 
-    .download-panel h2 { font-size: 34px; margin-bottom: 10px; }
-    .download-panel p { color: var(--muted); margin-bottom: 25px; }
+    .download-panel h2 {
+      font-size: 34px;
+      margin-bottom: 10px;
+    }
+
+    .download-panel p {
+      color: var(--muted);
+      margin-bottom: 25px;
+    }
 
     footer {
       border-top: 1px solid #292238;
@@ -195,14 +264,30 @@
     }
 
     @media (max-width: 750px) {
-      .features { grid-template-columns: 1fr; }
-      .nav-links { gap: 12px; font-size: 13px; }
-      .brand { font-size: 14px; }
-      .hero { padding-top: 75px; }
-      h1 { letter-spacing: -1.5px; }
+      .features {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-links {
+        gap: 12px;
+        font-size: 13px;
+      }
+
+      .brand {
+        font-size: 14px;
+      }
+
+      .hero {
+        padding-top: 75px;
+      }
+
+      h1 {
+        letter-spacing: -1.5px;
+      }
     }
   </style>
 </head>
+
 <body>
 
 <header>
@@ -211,28 +296,39 @@
       <img src="assets/logo.png" alt="Sampsons logo">
       SAMPSONS
     </a>
+
     <div class="nav-links">
       <a href="#features">Features</a>
       <a href="#download">Download</a>
-      <a href="https://github.com/jax2themax333/Sampsons-Wallpaper-Engine" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/jax2themax333/Sampsons-Wallpaper-Engine"
+         target="_blank" rel="noopener">GitHub</a>
     </div>
   </nav>
 </header>
 
 <main>
+
   <div class="hero">
     <div class="tag">THE DESKTOP EXPERIENCE, REIMAGINED</div>
+
     <h1>Make your desktop<br><span>your own.</span></h1>
+
     <p>
       Bring your desktop to life with Sampsons Wallpaper Engine.
       Personalize your Windows experience with photos, videos, and playlists.
     </p>
 
     <div class="buttons">
-      <a class="btn btn-primary" href="#download">Download for Windows</a>
+      <a class="btn btn-primary"
+         href="https://github.com/jax2themax333/Sampsons-Wallpaper-Engine/releases/download/v1.0.1/Sampsons-Wallpaper-Engine-Setup-1.0.1.exe">
+        Download for Windows
+      </a>
+
       <a class="btn btn-secondary"
          href="https://github.com/jax2themax333/Sampsons-Wallpaper-Engine"
-         target="_blank" rel="noopener">Explore on GitHub</a>
+         target="_blank" rel="noopener">
+        Explore on GitHub
+      </a>
     </div>
 
     <div class="preview">
@@ -251,6 +347,7 @@
     </div>
 
     <div class="features">
+
       <article class="feature">
         <div class="emoji">🖼️</div>
         <h3>Photo Wallpapers</h3>
@@ -286,25 +383,31 @@
         <h3>More to Come</h3>
         <p>We're continuing to improve Sampsons Wallpaper Engine with future updates.</p>
       </article>
+
     </div>
   </section>
 
-<section id="download">
-  <div class="download-panel">
-    <h2>Ready to make it yours?</h2>
-    <p>Sampsons Wallpaper Engine for Windows.</p>
+  <section id="download">
+    <div class="download-panel">
+      <h2>Ready to make it yours?</h2>
+      <p>Sampsons Wallpaper Engine for Windows.</p>
 
-    <a class="btn btn-primary"
-       href="https://github.com/jax2themax333/Sampsons-Wallpaper-Engine/releases/download/v1.0.1/Sampsons-Wallpaper-Engine-Setup-1.0.1.exe">
-      Download for Windows
-    </a>
-  </div>
-</section>
+      <a class="btn btn-primary"
+         href="https://github.com/jax2themax333/Sampsons-Wallpaper-Engine/releases/download/v1.0.1/Sampsons-Wallpaper-Engine-Setup-1.0.1.exe">
+        Download for Windows
+      </a>
+    </div>
+  </section>
+
 </main>
 
 <footer>
   <p>© 2026 Sampsons Wallpaper Engine. Made by Sampsons.</p>
-  <p><a href="https://github.com/jax2themax333/Sampsons-Wallpaper-Engine">Open-source project on GitHub</a></p>
+  <p>
+    <a href="https://github.com/jax2themax333/Sampsons-Wallpaper-Engine">
+      Open-source project on GitHub
+    </a>
+  </p>
 </footer>
 
 </body>
