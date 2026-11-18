@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <style>
+        html, body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .layer {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity var(--fade, 1s) linear;
+        }
+
+        .layer.visible {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <img id="imageA" class="layer">
+    <video id="videoA" class="layer" muted playsinline></video>
+    <img id="imageB" class="layer">
+    <video id="videoB" class="layer" muted playsinline></video>
+
+    <script>
+        const params = new URLSearchParams(location.search);
+
+        const singleVideo = params.get('video');
+        const startTime = Math.max(0, Number(params.get('start')) || 0);
+        const endTime = Math.max(0, Number(params.get('end')) || 0);
+
+        const layers = [
+            {
+                image: document.getElementById('imageA'),
+                video: document.getElementById('videoA')
+            },
+            {
+                image: document.getElementById('imageB'),
+                video: document.getElementById('videoB')
+            }
+        ];
+
+        function clearLayer(index) {
+            const layer = layers[index];
+
+            layer.image.classList.remove('visible');
+            layer.image.removeAttribute('src');
+
+            layer.video.pause();
+            layer.video.classList.remove('visible');
+            layer.video.removeAttribute('src');
+            layer.video.load();
+        }
+
+        function wait(seconds) {
+            return new Promise(resolve => {
+                setTimeout(resolve, Math.max(0, seconds) * 1000);
+            });
+        }
+
+        function waitForVideoEnd(video) {
+            return new Promise((resolve, reject) => {
+                if (video.ended) {
+                    resolve();
+                    return;
+                }
+
+                video.addEventListener('ended', resolve, { once: true });
+
+                video.addEventListener('error', () => {
+                    reject(new Error('A playlist video could not play.'));
+                }, { once: true });
+            });
+        }
+
+        function loadMedia(media) {
+            return new Promise((resolve, reject) => {
+                if (
+                    media instanceof HTMLImageElement &&
+                    media.complete &&
+                    media.naturalWidth > 0
+                ) {
+                    resolve();
+                    return;
+                }
+
+                if (
+                    media instanceof HTMLVideoElement &&
+                    media.readyState >= 1
+                ) {
+                    resolve();
+                    return;
+                }
+
+                media.addEventListener('loadedmetadata', resolve, { once: true });
+                media.addEventListener('load', resolve, { once: true });
+                media.addEventListener('error', () => {
+                    reject(new Error('Could not load a playlist wallpaper.'));
+                }, { once: true });
+            });
+        }
+
+        async function playSingleVideo() {
+            const video = layers[0].video;
+
+            video.src = singleVideo;
+            video.loop = true;
+
+            await loadMedia(video);
+
+            video.currentTime = Math.min(
+                startTime,
+                Math.max(0, video.duration - 0.05)
+            );
+
+            video.classList.add('visible');
+            await video.play();
+
+            video.addEventListener('timeupdate', () => {
+                if (endTime > startTime && video.currentTime >= endTime) {
+                    video.currentTime = startTime;
+                    video.play();
+                }
+            });
+        }
+
+        async function prepareWallpaper(item, layerIndex) {
+            clearLayer(layerIndex);
+
+            const layer = layers[layerIndex];
+            const isVideo = item.kind === 'video';
+            const media = isVideo ? layer.video : layer.image;
+
+            media.src = item.filePath;
+
+            if (isVideo) {
+                media.loop = !item.playUntilEnd;
+
+                await loadMedia(media);
+
+                // Apply speed after the video metadata has loaded.
+                const speed = Math.max(
+                    0.25,
+                    Math.min(4, Number(item.speed) || 1)
+                );
+
+                media.defaultPlaybackRate = speed;
+                media.playbackRate = speed;
+
+                await media.play();
+
+                // Apply again after playback starts to avoid the browser
+                // resetting the playback rate during startup.
+                media.playbackRate = speed;
+            } else {
+                await loadMedia(media);
+            }
+
+            return media;
+        }
+
+        async function playPlaylist(playlist) {
+            const items = Array.isArray(playlist.items)
+                ? playlist.items.filter(item => item && item.filePath)
+                : [];
+
+            if (!items.length) return;
+
+            if (playlist.mode === 'shuffle') {
+                for (let i = items.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [items[i], items[j]] = [items[j], items[i]];
+                }
+            }
+
+            const fade = Math.max(
+                0,
+                Math.min(10, Number(playlist.fade) || 0)
+            );
+
+            document.documentElement.style.setProperty(
+                '--fade',
+                `${fade}s`
+            );
+
+            let currentIndex = 0;
+            let activeLayer = 0;
+
+            let currentMedia = await prepareWallpaper(items[0], activeLayer);
+            currentMedia.classList.add('visible');
+
+            while (true) {
+                const currentItem = items[currentIndex];
+
+                // Wait until the video ends if that option is enabled.
+                if (
+                    currentItem.kind === 'video' &&
+                    currentItem.playUntilEnd === true
+                ) {
+                    await waitForVideoEnd(currentMedia);
+                } else {
+                    const duration = Math.max(
+                        1,
+                        Number(currentItem.duration) || 30
+                    );
+
+                    await wait(duration);
+                }
+
+                const nextIndex = (currentIndex + 1) % items.length;
+                const nextLayer = activeLayer === 0 ? 1 : 0;
+
+                const nextMedia = await prepareWallpaper(
+                    items[nextIndex],
+                    nextLayer
+                );
+
+                // Both wallpapers begin fading at the same time.
+                requestAnimationFrame(() => {
+                    nextMedia.classList.add('visible');
+                    currentMedia.classList.remove('visible');
+                });
+
+                await wait(fade);
+
+                clearLayer(activeLayer);
+
+                currentIndex = nextIndex;
+                activeLayer = nextLayer;
+                currentMedia = nextMedia;
+            }
+        }
+
+        if (params.has('playlist')) {
+            try {
+                const encoded = params.get('playlist');
+
+                const decoded = decodeURIComponent(
+                    Array.from(atob(encoded))
+                        .map(char =>
+                            '%' + char.charCodeAt(0)
+                                .toString(16)
+                                .padStart(2, '0')
+                        )
+                        .join('')
+                );
+
+                const playlist = JSON.parse(decoded);
+                playPlaylist(playlist).catch(error => {
+                    console.error('Playlist playback error:', error);
+                });
+            } catch (error) {
+                console.error('Playlist error:', error);
+            }
+        } else if (singleVideo) {
+            playSingleVideo().catch(error => {
+                console.error('Video playback error:', error);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+{
+  "name": "sampsons-wallapper-engine",
+  "version": "1.0.0",
+  "description": "Sampsons Wallpaper Engine",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win"
+  },
+  "keywords": [],
+  "author": "Sampsons",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "electron": "^45.2.1",
+    "electron-builder": "^26.18.0",
+    "png-to-ico": "^3.0.2",
+    "sharp": "^0.35.5"
+  },
+  "allowScripts": {
+    "electron-winstaller@5.4.0": true
+  },
+  "build": {
+    "appId": "com.sampsons.wallpaperengine",
+    "productName": "Sampsons Wallpaper Engine",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!dist/**/*",
+      "!node_modules/.cache/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "VideoWallpaper/bin/Debug/net8.0-windows",
+        "to": "VideoWallpaper"
+      }
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Sampsons Wallpaper Engine"
+    }
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.11"
+  }
+}

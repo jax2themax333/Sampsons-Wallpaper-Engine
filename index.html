@@ -1,0 +1,1357 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sampsons Wallpaper Engine</title>
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .video-settings {
+            display: none;
+            margin-top: 18px;
+        }
+
+        .time-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .time-inputs input {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .time-help {
+            opacity: .75;
+            font-size: 12px;
+        }
+
+        .modal-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .remove-wallpaper-btn {
+            background: #5b3b79;
+            color: white;
+            border: 0;
+            padding: 12px 16px;
+            border-radius: 9px;
+            cursor: pointer;
+        }
+
+        .wallpaper-card {
+            cursor: pointer;
+        }
+
+        .wallpaper-card img,
+        .wallpaper-card video {
+            width: 100%;
+            display: block;
+        }
+
+        .library-note {
+            opacity: .7;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        #playlistEditor {
+            background: #171421;
+            border: 1px solid #393044;
+            border-radius: 15px;
+            padding: 22px;
+        }
+
+        #playlistEditor label,
+        .setting-row label {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            color: #cfc3df;
+            font-size: 13px;
+        }
+
+        #playlistEditor input,
+        #playlistEditor select,
+        .setting-row select,
+        .setting-row input[type="number"] {
+            background: #0e0b16;
+            border: 1px solid #403253;
+            border-radius: 8px;
+            padding: 10px;
+            color: white;
+            min-width: 0;
+        }
+
+        .playlist-card {
+            background: #171421;
+            border: 1px solid #393044;
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .playlist-card h3 {
+            margin-bottom: 8px;
+        }
+
+        .playlist-card p {
+            color: #9b91aa;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+
+        .playlist-card button {
+            margin: 3px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 0;
+            cursor: pointer;
+            background: #302344;
+            color: #e4d7f5;
+        }
+
+        .playlist-item {
+            display: grid;
+            grid-template-columns: 24px minmax(120px, 1fr) 110px 110px;
+            gap: 8px;
+            align-items: center;
+            padding: 12px 10px;
+            border-bottom: 1px solid #30283c;
+        }
+
+        .playlist-item input {
+            width: 100%;
+        }
+
+        .playlist-item .item-title {
+            color: #e4d7f5;
+            font-size: 13px;
+        }
+
+        .playlist-item .item-settings {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            font-size: 11px;
+            color: #a99bb9;
+        }
+
+        .playlist-item .item-settings input,
+        .playlist-item .item-settings select {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .playlist-item .play-end-option {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 6px;
+            margin-top: 5px;
+            color: #cfc3df;
+        }
+
+        .playlist-item .play-end-option input {
+            width: auto;
+        }
+
+        .playlist-list-view .wallpaper-card {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .playlist-list-view .wallpaper-card img,
+        .playlist-list-view .wallpaper-card video {
+            width: 70px;
+            height: 48px;
+            object-fit: cover;
+        }
+
+        /* SETTINGS PAGE */
+
+        #settingsPage {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .settings-section {
+            background: #171421;
+            border: 1px solid #393044;
+            border-radius: 13px;
+            padding: 20px;
+            margin: 16px 0;
+        }
+
+        .settings-section h3 {
+            margin-bottom: 5px;
+        }
+
+        .settings-description {
+            color: #968ba5;
+            font-size: 12px;
+            margin-bottom: 15px;
+        }
+
+        .setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            padding: 15px 0;
+            border-bottom: 1px solid #30283c;
+        }
+
+        .setting-row:last-child {
+            border-bottom: 0;
+        }
+
+        .setting-info {
+            flex: 1;
+        }
+
+        .setting-info strong {
+            display: block;
+            color: #eee7f7;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .setting-info span {
+            display: block;
+            color: #9b91aa;
+            font-size: 12px;
+        }
+
+        .setting-toggle {
+            appearance: none;
+            width: 44px;
+            height: 24px;
+            flex-shrink: 0;
+            border-radius: 20px;
+            background: #453b50;
+            position: relative;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        .setting-toggle::before {
+            content: "";
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            left: 3px;
+            top: 3px;
+            border-radius: 50%;
+            background: white;
+            transition: transform .2s;
+        }
+
+        .setting-toggle:checked {
+            background: #9b65d3;
+        }
+
+        .setting-toggle:checked::before {
+            transform: translateX(20px);
+        }
+
+        .settings-status {
+            color: #a995c1;
+            font-size: 12px;
+            margin-top: 12px;
+            min-height: 18px;
+        }
+
+        .settings-button {
+            background: #302344;
+            color: #eee7f7;
+            border: 1px solid #55416b;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .settings-button.danger {
+            background: #512b3b;
+            border-color: #754154;
+        }
+
+        #widgetsPage {
+            margin-top: 10px;
+        }
+
+        .widgets-coming-soon {
+            color: #91899e;
+            margin-top: 8px;
+        }
+
+        @media(max-width: 650px) {
+            .playlist-item {
+                grid-template-columns: 24px 1fr;
+            }
+
+            .setting-row {
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="app">
+
+    <aside class="sidebar">
+        <h2 class="logo">SAMPSONS<span>.</span></h2>
+        <p class="subtitle">WALLPAPER ENGINE</p>
+
+        <div class="menu">
+            <button id="navHome" class="active">🏠 Home</button>
+            <button id="navWallpapers">🖼️ My Wallpapers</button>
+            <button id="navPlaylists">🎞️ Playlists</button>
+            <button id="navWidgets">🧩 Widgets</button>
+            <button id="navSettings">⚙️ Settings</button>
+        </div>
+
+        <div class="sidebar-bottom">
+            <p>VERSION 1.2</p>
+            <p>Made by Sampsons</p>
+        </div>
+    </aside>
+
+    <main class="content">
+
+        <header>
+            <div>
+                <h1 id="pageHeading">Welcome Back.</h1>
+                <p id="pageSubheading">Your desktop, your style.</p>
+            </div>
+            <div class="date" id="date"></div>
+        </header>
+
+        <section class="welcome" id="welcomeSection">
+            <div>
+                <p class="tag">YOUR DESKTOP EXPERIENCE</p>
+                <h2>Make your desktop<br>something special.</h2>
+                <p>Import your favorite photos and videos.</p>
+                <button class="import-btn" id="importBtn">+ Import Wallpaper</button>
+                <p class="library-note">Your imported wallpapers are saved on this PC.</p>
+            </div>
+        </section>
+
+        <!-- WALLPAPER LIBRARY -->
+
+        <section class="wallpapers" id="libraryPage">
+            <h2>My Wallpapers</h2>
+            <div class="wallpaper-grid" id="wallpaperGrid">
+                <p class="empty">Loading your wallpaper collection...</p>
+            </div>
+        </section>
+
+        <!-- PLAYLISTS -->
+
+        <section id="playlistsPage" style="display:none;margin-top:10px">
+
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px">
+                <div>
+                    <h2>My Playlists</h2>
+                    <p style="color:#91899e;margin-top:6px">
+                        Mix photos and videos into your own desktop rotation.
+                    </p>
+                </div>
+                <button class="import-btn" id="newPlaylistBtn">+ Create Playlist</button>
+            </div>
+
+            <div id="playlistCards" class="wallpaper-grid"></div>
+
+            <div id="playlistEditor" style="display:none;margin-top:24px">
+
+                <h2 id="playlistEditorTitle">Create Playlist</h2>
+
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:16px 0">
+
+                    <label>
+                        Playlist name
+                        <input id="playlistName" type="text" placeholder="My playlist">
+                    </label>
+
+                    <label>
+                        Playback order
+                        <select id="playlistMode">
+                            <option value="order">In order</option>
+                            <option value="shuffle">Shuffle</option>
+                        </select>
+                    </label>
+
+                    <label>
+                        Display style
+                        <select id="playlistView">
+                            <option value="grid">Grid view</option>
+                            <option value="list">List view</option>
+                        </select>
+                    </label>
+
+                    <label>
+                        Crossfade (seconds)
+                        <input id="playlistFade" type="number" min="0" max="10" step="0.1" value="1">
+                    </label>
+
+                </div>
+
+                <h3 style="margin:16px 0 10px">Choose wallpapers and playback settings</h3>
+                <div id="playlistChoices"></div>
+
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
+                    <button class="import-btn" id="savePlaylistBtn">Save Playlist</button>
+                    <button class="save-name-btn" id="cancelPlaylistBtn">Cancel</button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SETTINGS -->
+
+        <section id="settingsPage">
+
+            <h2>Settings</h2>
+            <p style="color:#91899e;margin-top:6px">
+                Customize how Sampsons Wallpaper Engine works.
+            </p>
+
+            <div class="settings-section">
+                <h3>Startup & Background</h3>
+                <p class="settings-description">Choose what happens when you turn on your PC.</p>
+
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <strong>Auto Open</strong>
+                        <span>Automatically launch the app when you sign in to Windows.</span>
+                    </div>
+                    <input class="setting-toggle" type="checkbox" id="autoOpen">
+                </div>
+
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <strong>Auto Play</strong>
+                        <span>Restore the last wallpaper or playlist when the app starts.</span>
+                    </div>
+                    <input class="setting-toggle" type="checkbox" id="autoPlay">
+                </div>
+
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <strong>Start Minimized</strong>
+                        <span>Start the app minimized instead of showing its main window.</span>
+                    </div>
+                    <input class="setting-toggle" type="checkbox" id="startMinimized">
+                </div>
+
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <strong>Minimize to System Tray</strong>
+                        <span>Keep the app running in the background when you close its window.</span>
+                    </div>
+                    <input class="setting-toggle" type="checkbox" id="minimizeToTray">
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>Appearance & Preferences</h3>
+                <p class="settings-description">Set your default app preferences.</p>
+
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <strong>Default Library View</strong>
+                        <span>Choose how your wallpapers are displayed.</span>
+                    </div>
+                    <select id="defaultView">
+                        <option value="grid">Grid</option>
+                        <option value="list">List</option>
+                    </select>
+                </div>
+
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <strong>Remember Last Page</strong>
+                        <span>Reopen the last page you visited.</span>
+                    </div>
+                    <input class="setting-toggle" type="checkbox" id="rememberLastPage">
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>Playback Defaults</h3>
+                <p class="settings-description">Default values for new playlists.</p>
+
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <strong>Default Crossfade</strong>
+                        <span>Default transition duration for new playlists.</span>
+                    </div>
+                    <label>
+                        <input type="number" id="defaultFade" min="0" max="10" step="0.1">
+                    </label>
+                </div>
+
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <strong>Default Photo Duration</strong>
+                        <span>How long a photo plays in a new playlist, in seconds.</span>
+                    </div>
+                    <label>
+                        <input type="number" id="defaultPhotoDuration" min="1" max="3600">
+                    </label>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>Application</h3>
+                <p class="settings-description">Application information and preferences.</p>
+
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <strong>Application Version</strong>
+                        <span>Sampsons Wallpaper Engine 1.2</span>
+                    </div>
+                </div>
+
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <strong>Reset Settings</strong>
+                        <span>Restore all settings to their default values. Your wallpapers and playlists will not be deleted.</span>
+                    </div>
+                    <button class="settings-button danger" id="resetSettingsBtn">Reset Settings</button>
+                </div>
+
+                <p class="settings-status" id="settingsStatus">Settings are saved automatically.</p>
+            </div>
+
+        </section>
+
+        <!-- WIDGETS -->
+
+        <section id="widgetsPage" style="display:none">
+            <h2>Widgets</h2>
+            <p class="widgets-coming-soon">
+                Widgets are coming soon!
+            </p>
+        </section>
+
+    </main>
+</div>
+
+<!-- WALLPAPER MODAL -->
+
+<div class="modal-overlay" id="wallpaperModal">
+    <div class="wallpaper-modal">
+
+        <button class="modal-close" id="closeModal">✕</button>
+
+        <p class="modal-tag">WALLPAPER SETTINGS</p>
+        <h2 id="modalTitle">Wallpaper Name</h2>
+
+        <div class="modal-preview" id="modalPreview"></div>
+
+        <div class="modal-section">
+            <label for="renameInput">Wallpaper Name</label>
+            <input type="text" id="renameInput" placeholder="Enter wallpaper name">
+            <button class="save-name-btn" id="saveNameBtn">Save Name</button>
+        </div>
+
+        <div class="video-settings" id="videoSettings">
+            <p class="video-settings-title">VIDEO PLAYBACK</p>
+
+            <div class="time-inputs">
+                <div>
+                    <label for="startTime">Start Time (seconds)</label>
+                    <input type="number" id="startTime" min="0" step="0.1" value="0">
+                </div>
+                <div>
+                    <label for="endTime">End Time (seconds)</label>
+                    <input type="number" id="endTime" min="0" step="0.1" value="0">
+                </div>
+            </div>
+
+            <p class="time-help">Choose the section to loop. End Time 0 means the full video.</p>
+        </div>
+
+        <div class="modal-actions">
+            <button class="set-wallpaper-btn" id="modalSetWallpaper">Set as Desktop Wallpaper</button>
+            <button class="remove-wallpaper-btn" id="removeWallpaper">Remove Wallpaper (keep in library)</button>
+            <button class="delete-wallpaper-btn" id="deleteWallpaper">Delete from My Wallpapers</button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    const $ = id => document.getElementById(id);
+
+    const grid = $('wallpaperGrid');
+    const modal = $('wallpaperModal');
+    const modalPreview = $('modalPreview');
+    const videoSettings = $('videoSettings');
+
+    let wallpapers = [];
+    let selected = null;
+    let playlists = [];
+    let editingPlaylist = null;
+    let settings = {};
+
+    $('date').textContent = new Date().toLocaleDateString();
+
+    // ------------------------------
+    // PAGE NAVIGATION
+    // ------------------------------
+
+    const pages = {
+        home: $('libraryPage'),
+        library: $('libraryPage'),
+        playlists: $('playlistsPage'),
+        settings: $('settingsPage'),
+        widgets: $('widgetsPage')
+    };
+
+    const navMap = {
+        home: $('navHome'),
+        library: $('navWallpapers'),
+        playlists: $('navPlaylists'),
+        settings: $('navSettings'),
+        widgets: $('navWidgets')
+    };
+
+    function showPage(page, save = true) {
+        Object.entries(pages).forEach(([name, element]) => {
+            if (name === 'home') return;
+
+            element.style.display = name === page ? 'block' : 'none';
+        });
+
+        $('welcomeSection').style.display =
+            page === 'library' || page === 'home' ? '' : 'none';
+
+        $('pageHeading').textContent = {
+            home: 'Welcome Back.',
+            library: 'My Wallpapers',
+            playlists: 'My Playlists',
+            settings: 'Settings',
+            widgets: 'Widgets'
+        }[page] || 'Welcome Back.';
+
+        $('pageSubheading').textContent = {
+            home: 'Your desktop, your style.',
+            library: 'Manage your wallpaper collection.',
+            playlists: 'Create your own wallpaper rotations.',
+            settings: 'Customize your app experience.',
+            widgets: 'Customize your desktop with widgets.'
+        }[page] || '';
+
+        Object.values(navMap).forEach(button => {
+            button.classList.remove('active');
+        });
+
+        navMap[page]?.classList.add('active');
+
+        if (page === 'playlists') {
+            loadPlaylists();
+        }
+
+        if (save && settings.rememberLastPage) {
+            saveSettings({ lastPage: page }).catch(error => {
+                console.error('Could not save last page:', error);
+            });
+        }
+    }
+
+    $('navHome').addEventListener('click', () => showPage('home'));
+    $('navWallpapers').addEventListener('click', () => showPage('library'));
+    $('navPlaylists').addEventListener('click', () => showPage('playlists'));
+    $('navSettings').addEventListener('click', () => showPage('settings'));
+    $('navWidgets').addEventListener('click', () => showPage('widgets'));
+
+    // ------------------------------
+    // SETTINGS
+    // ------------------------------
+
+    const settingIds = [
+        'autoOpen',
+        'autoPlay',
+        'startMinimized',
+        'minimizeToTray',
+        'rememberLastPage'
+    ];
+
+    function showSettingsStatus(message) {
+        $('settingsStatus').textContent = message;
+    }
+
+    async function saveSettings(updates) {
+        try {
+            settings = await window.wallpaperAPI.saveSettings(updates);
+            showSettingsStatus('Settings saved ✓');
+            return settings;
+        } catch (error) {
+            showSettingsStatus('Could not save settings: ' + error.message);
+            throw error;
+        }
+    }
+
+    function displaySettings() {
+        settingIds.forEach(id => {
+            $(id).checked = !!settings[id];
+        });
+
+        $('defaultView').value = settings.defaultView || 'grid';
+        $('defaultFade').value = settings.defaultFade ?? 1;
+        $('defaultPhotoDuration').value = settings.defaultPhotoDuration ?? 10;
+    }
+
+    async function loadSettings() {
+        settings = await window.wallpaperAPI.getSettings();
+
+        displaySettings();
+
+        if (
+            settings.rememberLastPage &&
+            settings.lastPage &&
+            pages[settings.lastPage]
+        ) {
+            showPage(settings.lastPage, false);
+        } else {
+            showPage('home', false);
+        }
+    }
+
+    settingIds.forEach(id => {
+        $(id).addEventListener('change', async () => {
+            const updates = {
+                [id]: $(id).checked
+            };
+
+            if (id === 'startMinimized' && $(id).checked) {
+                updates.autoOpen = true;
+                $('autoOpen').checked = true;
+            }
+
+            if (id === 'autoOpen' && !$(id).checked) {
+                updates.startMinimized = false;
+                $('startMinimized').checked = false;
+            }
+
+            try {
+                await saveSettings(updates);
+            } catch (error) {
+                console.error('Settings save failed:', error);
+            }
+        });
+    });
+
+    $('defaultView').addEventListener('change', async () => {
+        try {
+            await saveSettings({
+                defaultView: $('defaultView').value
+            });
+
+            renderLibrary();
+        } catch (error) {
+            console.error(error);
+        }
+    });
+
+    $('defaultFade').addEventListener('change', async () => {
+        const value = Number($('defaultFade').value);
+
+        if (!Number.isFinite(value) || value < 0 || value > 10) {
+            $('defaultFade').value = settings.defaultFade ?? 1;
+            return showSettingsStatus('Crossfade must be between 0 and 10 seconds.');
+        }
+
+        try {
+            await saveSettings({ defaultFade: value });
+        } catch (error) {
+            console.error(error);
+        }
+    });
+
+    $('defaultPhotoDuration').addEventListener('change', async () => {
+        const value = Number($('defaultPhotoDuration').value);
+
+        if (!Number.isFinite(value) || value < 1 || value > 3600) {
+            $('defaultPhotoDuration').value = settings.defaultPhotoDuration ?? 10;
+            return showSettingsStatus('Photo duration must be between 1 and 3600 seconds.');
+        }
+
+        try {
+            await saveSettings({ defaultPhotoDuration: value });
+        } catch (error) {
+            console.error(error);
+        }
+    });
+
+    $('resetSettingsBtn').addEventListener('click', async () => {
+        if (!confirm(
+            'Reset all settings to their defaults? Your wallpapers and playlists will stay safe.'
+        )) {
+            return;
+        }
+
+        try {
+            settings = await window.wallpaperAPI.resetSettings();
+
+            displaySettings();
+
+            showSettingsStatus('Settings restored to defaults ✓');
+        } catch (error) {
+            showSettingsStatus('Could not reset settings: ' + error.message);
+        }
+    });
+
+    // ------------------------------
+    // WALLPAPER LIBRARY
+    // ------------------------------
+
+    function showEmpty() {
+        grid.replaceChildren();
+
+        const p = document.createElement('p');
+        p.className = 'empty';
+        p.textContent = 'Your wallpaper collection will appear here.';
+
+        grid.appendChild(p);
+    }
+
+    function makeCard(item) {
+        const card = document.createElement('div');
+        card.className = 'wallpaper-card';
+
+        const media = document.createElement(
+            item.kind === 'video' ? 'video' : 'img'
+        );
+
+        media.src = item.url;
+
+        if (item.kind === 'video') {
+            media.muted = true;
+            media.loop = true;
+            media.autoplay = true;
+            media.playsInline = true;
+        }
+
+        const name = document.createElement('p');
+        name.textContent = item.name;
+
+        card.append(media, name);
+
+        card.addEventListener('click', () => {
+            openSettings(item);
+        });
+
+        item.card = card;
+        item.nameElement = name;
+
+        grid.appendChild(card);
+    }
+
+    function renderLibrary() {
+        grid.replaceChildren();
+
+        if (!wallpapers.length) {
+            showEmpty();
+            return;
+        }
+
+        wallpapers.forEach(makeCard);
+
+        if (settings.defaultView === 'list') {
+            grid.classList.add('playlist-list-view');
+        } else {
+            grid.classList.remove('playlist-list-view');
+        }
+    }
+
+    async function loadLibrary() {
+        wallpapers = await window.wallpaperAPI.listWallpapers();
+        renderLibrary();
+    }
+
+    $('importBtn').addEventListener('click', async () => {
+        try {
+            const added = await window.wallpaperAPI.importWallpapers();
+
+            if (added.length) {
+                wallpapers.push(...added);
+                renderLibrary();
+            }
+        } catch (error) {
+            alert(error.message || 'Could not import wallpapers.');
+        }
+    });
+
+    // ------------------------------
+    // WALLPAPER SETTINGS MODAL
+    // ------------------------------
+
+    function openSettings(item) {
+        selected = item;
+
+        $('modalTitle').textContent = item.name;
+        $('renameInput').value = item.name;
+        $('startTime').value = item.startTime || 0;
+        $('endTime').value = item.endTime || 0;
+
+        videoSettings.style.display =
+            item.kind === 'video' ? 'block' : 'none';
+
+        modalPreview.replaceChildren();
+
+        const media = document.createElement(
+            item.kind === 'video' ? 'video' : 'img'
+        );
+
+        media.src = item.url;
+
+        if (item.kind === 'video') {
+            media.controls = true;
+            media.muted = true;
+
+            media.addEventListener('loadedmetadata', () => {
+                $('endTime').max = media.duration;
+            }, { once: true });
+        }
+
+        modalPreview.appendChild(media);
+        modal.classList.add('show');
+    }
+
+    function closeSettingsModal() {
+        modal.classList.remove('show');
+        modalPreview.replaceChildren();
+        selected = null;
+    }
+
+    $('closeModal').addEventListener('click', closeSettingsModal);
+
+    modal.addEventListener('click', event => {
+        if (event.target === modal) {
+            closeSettingsModal();
+        }
+    });
+
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') {
+            closeSettingsModal();
+        }
+    });
+
+    $('saveNameBtn').addEventListener('click', async () => {
+        if (!selected) return;
+
+        const name = $('renameInput').value.trim();
+
+        if (!name) {
+            return alert('Please enter a name.');
+        }
+
+        try {
+            await window.wallpaperAPI.updateWallpaper({
+                id: selected.id,
+                name
+            });
+
+            selected.name = name;
+            selected.nameElement.textContent = name;
+            $('modalTitle').textContent = name;
+            $('saveNameBtn').textContent = 'Saved! ✓';
+
+            setTimeout(() => {
+                $('saveNameBtn').textContent = 'Save Name';
+            }, 1300);
+        } catch (error) {
+            alert(error.message);
+        }
+    });
+
+    $('modalSetWallpaper').addEventListener('click', async () => {
+        if (!selected) return;
+
+        const button = $('modalSetWallpaper');
+
+        try {
+            if (selected.kind === 'video') {
+                const start = Number($('startTime').value);
+                const end = Number($('endTime').value);
+
+                if (
+                    !Number.isFinite(start) ||
+                    !Number.isFinite(end) ||
+                    start < 0 ||
+                    end < 0 ||
+                    (end > 0 && end <= start)
+                ) {
+                    return alert('Enter a valid start and end time.');
+                }
+
+                await window.wallpaperAPI.updateWallpaper({
+                    id: selected.id,
+                    startTime: start,
+                    endTime: end
+                });
+
+                selected.startTime = start;
+                selected.endTime = end;
+
+                await window.wallpaperAPI.setVideoWallpaper(
+                    selected.filePath,
+                    start,
+                    end
+                );
+            } else {
+                await window.wallpaperAPI.setWallpaper(
+                    selected.filePath
+                );
+            }
+
+            button.textContent = 'Wallpaper Set! ✓';
+
+            setTimeout(() => {
+                button.textContent = 'Set as Desktop Wallpaper';
+            }, 1800);
+        } catch (error) {
+            alert(error.message || 'Could not set wallpaper.');
+        }
+    });
+
+    $('removeWallpaper').addEventListener('click', async () => {
+        try {
+            await window.wallpaperAPI.removeWallpaper();
+
+            closeSettingsModal();
+
+            alert('Wallpaper removed. Your library is unchanged.');
+        } catch (error) {
+            alert(error.message || 'Could not remove wallpaper.');
+        }
+    });
+
+    $('deleteWallpaper').addEventListener('click', async () => {
+        if (!selected) return;
+
+        if (!confirm(
+            'Permanently delete this wallpaper from My Wallpapers?'
+        )) {
+            return;
+        }
+
+        try {
+            await window.wallpaperAPI.deleteWallpaper(selected.id);
+
+            wallpapers = wallpapers.filter(item =>
+                item.id !== selected.id
+            );
+
+            closeSettingsModal();
+            renderLibrary();
+        } catch (error) {
+            alert(error.message || 'Could not delete wallpaper.');
+        }
+    });
+
+    // ------------------------------
+    // PLAYLISTS
+    // ------------------------------
+
+    const playlistCards = $('playlistCards');
+    const editor = $('playlistEditor');
+
+    async function loadPlaylists() {
+        playlists = await window.wallpaperAPI.listPlaylists();
+
+        playlistCards.replaceChildren();
+
+        if (!playlists.length) {
+            const empty = document.createElement('p');
+            empty.className = 'empty';
+            empty.textContent = 'No playlists yet. Create your first playlist!';
+
+            playlistCards.appendChild(empty);
+            return;
+        }
+
+        playlists.forEach(playlist => {
+            const card = document.createElement('div');
+            card.className = 'playlist-card';
+
+            const title = document.createElement('h3');
+            title.textContent = playlist.name;
+
+            const description = document.createElement('p');
+
+            description.textContent =
+                `${playlist.items.length} wallpapers · ` +
+                `${playlist.mode === 'shuffle' ? 'Shuffle' : 'In order'} · ${playlist.view} view`;
+
+            const editButton = document.createElement('button');
+            editButton.textContent = 'Edit';
+
+            editButton.onclick = () => {
+                openPlaylistEditor(playlist);
+            };
+
+            const playButton = document.createElement('button');
+            playButton.textContent = '▶ Play';
+
+            playButton.onclick = async () => {
+                try {
+                    await window.wallpaperAPI.playPlaylist(playlist);
+                    alert('Playlist started!');
+                } catch (error) {
+                    alert(error.message);
+                }
+            };
+
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+
+            deleteButton.onclick = async () => {
+                if (confirm(`Delete playlist "${playlist.name}"?`)) {
+                    try {
+                        await window.wallpaperAPI.deletePlaylist(playlist.id);
+                        await loadPlaylists();
+                    } catch (error) {
+                        alert(error.message || 'Could not delete playlist.');
+                    }
+                }
+            };
+
+            card.append(
+                title,
+                description,
+                editButton,
+                playButton,
+                deleteButton
+            );
+
+            playlistCards.appendChild(card);
+        });
+    }
+
+    function openPlaylistEditor(playlist = null) {
+        editingPlaylist = playlist;
+
+        editor.style.display = 'block';
+
+        $('playlistEditorTitle').textContent =
+            playlist ? 'Edit Playlist' : 'Create Playlist';
+
+        $('playlistName').value = playlist?.name || '';
+        $('playlistMode').value = playlist?.mode || 'order';
+
+        $('playlistView').value =
+            playlist?.view || settings.defaultView || 'grid';
+
+        $('playlistFade').value =
+            playlist?.fade ?? settings.defaultFade ?? 1;
+
+        const choices = $('playlistChoices');
+        choices.replaceChildren();
+
+        wallpapers.forEach(wallpaper => {
+            const old = playlist?.items?.find(item =>
+                item.id === wallpaper.id
+            );
+
+            const row = document.createElement('div');
+            row.className = 'playlist-item';
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = !!old;
+
+            const title = document.createElement('span');
+            title.className = 'item-title';
+
+            title.textContent = wallpaper.name +
+                (wallpaper.kind === 'video' ? ' (Video)' : ' (Photo)');
+
+            const durationWrap = document.createElement('div');
+            durationWrap.className = 'item-settings';
+
+            const durationLabel = document.createElement('span');
+            durationLabel.textContent = 'Play duration (seconds)';
+
+            const duration = document.createElement('input');
+            duration.type = 'number';
+            duration.min = '1';
+            duration.max = '3600';
+
+            duration.value = old?.duration ??
+                (wallpaper.kind === 'video'
+                    ? 30
+                    : settings.defaultPhotoDuration || 10);
+
+            durationWrap.append(durationLabel, duration);
+
+            let playUntilEnd = null;
+
+            if (wallpaper.kind === 'video') {
+                const endLabel = document.createElement('label');
+                endLabel.className = 'play-end-option';
+
+                playUntilEnd = document.createElement('input');
+                playUntilEnd.type = 'checkbox';
+                playUntilEnd.checked = old?.playUntilEnd === true;
+
+                const endText = document.createElement('span');
+                endText.textContent = 'Play to end';
+
+                endLabel.append(playUntilEnd, endText);
+                durationWrap.appendChild(endLabel);
+
+                duration.disabled = playUntilEnd.checked;
+
+                playUntilEnd.addEventListener('change', () => {
+                    duration.disabled = playUntilEnd.checked;
+                });
+            }
+
+            const speedWrap = document.createElement('div');
+            speedWrap.className = 'item-settings';
+
+            const speedLabel = document.createElement('span');
+            speedLabel.textContent = 'Video speed';
+
+            const speed = document.createElement('select');
+
+            [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4].forEach(value => {
+                const option = document.createElement('option');
+
+                option.value = value;
+                option.textContent = value + 'x';
+
+                speed.appendChild(option);
+            });
+
+            speed.value = old?.speed ?? 1;
+
+            if (wallpaper.kind !== 'video') {
+                speed.disabled = true;
+            }
+
+            speedWrap.append(speedLabel, speed);
+
+            row.append(
+                checkbox,
+                title,
+                durationWrap,
+                speedWrap
+            );
+
+            row._item = wallpaper;
+            row._duration = duration;
+            row._speed = speed;
+            row._playUntilEnd = playUntilEnd;
+
+            choices.appendChild(row);
+        });
+
+        editor.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    $('newPlaylistBtn').addEventListener('click', () => {
+        openPlaylistEditor();
+    });
+
+    $('cancelPlaylistBtn').addEventListener('click', () => {
+        editor.style.display = 'none';
+    });
+
+    $('savePlaylistBtn').addEventListener('click', async () => {
+        const rows = [...$('playlistChoices').children];
+
+        const items = rows
+            .filter(row =>
+                row.querySelector('input[type="checkbox"]').checked
+            )
+            .map(row => ({
+                ...row._item,
+                duration: Number(row._duration.value),
+                speed: Number(row._speed.value),
+                playUntilEnd: row._playUntilEnd
+                    ? row._playUntilEnd.checked
+                    : false
+            }));
+
+        if (!$('playlistName').value.trim()) {
+            return alert('Please enter a playlist name.');
+        }
+
+        if (!items.length) {
+            return alert('Choose at least one wallpaper for your playlist.');
+        }
+
+        for (const item of items) {
+            if (
+                !item.playUntilEnd &&
+                (!Number.isFinite(item.duration) || item.duration < 1)
+            ) {
+                return alert(
+                    'Enter a valid playback duration for each selected wallpaper.'
+                );
+            }
+        }
+
+        const fade = Number($('playlistFade').value);
+
+        if (!Number.isFinite(fade) || fade < 0 || fade > 10) {
+            return alert('Crossfade must be between 0 and 10 seconds.');
+        }
+
+        const payload = {
+            id: editingPlaylist?.id,
+            name: $('playlistName').value.trim(),
+            mode: $('playlistMode').value,
+            view: $('playlistView').value,
+            fade,
+            items
+        };
+
+        try {
+            await window.wallpaperAPI.savePlaylist(payload);
+
+            editor.style.display = 'none';
+
+            await loadPlaylists();
+
+            alert('Playlist saved!');
+        } catch (error) {
+            alert(error.message || 'Could not save playlist.');
+        }
+    });
+
+    // ------------------------------
+    // START APP
+    // ------------------------------
+
+    try {
+        await loadSettings();
+        await loadLibrary();
+
+        if (!settings.rememberLastPage) {
+            showPage('home', false);
+        }
+    } catch (error) {
+        console.error(error);
+
+        showEmpty();
+
+        alert('Could not load the app data: ' + error.message);
+    }
+});
+</script>
+
+</body>
+</html>
