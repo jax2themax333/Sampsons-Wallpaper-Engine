@@ -1,6 +1,6 @@
 {
   "name": "sampsons-wallapper-engine",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Sampsons Wallpaper Engine",
   "main": "main.js",
   "scripts": {
@@ -22,12 +22,12 @@
   },
   "build": {
     "publish": [
-  {
-    "provider": "github",
-    "owner": "jax2themax333",
-    "repo": "Sampsons-Wallpaper-Engine"
-  }
-],
+      {
+        "provider": "github",
+        "owner": "jax2themax333",
+        "repo": "Sampsons-Wallpaper-Engine"
+      }
+    ],
     "appId": "com.sampsons.wallpaperengine",
     "productName": "Sampsons Wallpaper Engine",
     "directories": {
@@ -36,6 +36,8 @@
     "files": [
       "**/*",
       "!dist/**/*",
+      "!dist-updater-test/**/*",
+      "!dist-updater-test",
       "!node_modules/.cache/**/*"
     ],
     "extraResources": [
