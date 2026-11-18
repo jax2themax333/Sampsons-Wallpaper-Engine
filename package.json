@@ -21,6 +21,13 @@
     "electron-winstaller@5.4.0": true
   },
   "build": {
+    "publish": [
+  {
+    "provider": "github",
+    "owner": "jax2themax333",
+    "repo": "Sampsons-Wallpaper-Engine"
+  }
+],
     "appId": "com.sampsons.wallpaperengine",
     "productName": "Sampsons Wallpaper Engine",
     "directories": {

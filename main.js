@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const { execFile } = require('child_process');
 const { pathToFileURL } = require('url');
+const { autoUpdater } = require('electron-updater');
 
 if (process.platform === 'win32') {
     app.setAppUserModelId('com.sampsons.wallpaperengine');
@@ -1062,6 +1063,81 @@ if (!gotSingleInstanceLock) {
         return readSettings();
     });
 
+    function setupAutoUpdates() {
+        // Development builds should never check for published updates.
+        if (!app.isPackaged || process.platform !== 'win32') return;
+
+        let updatePromptShown = false;
+
+        autoUpdater.autoDownload = true;
+        autoUpdater.autoInstallOnAppQuit = false;
+
+        autoUpdater.on('checking-for-update', () => {
+            diagnosticLog('Checking for application updates');
+        });
+
+        autoUpdater.on('update-available', info => {
+            diagnosticLog('Application update available', {
+                version: info.version
+            });
+        });
+
+        autoUpdater.on('update-not-available', info => {
+            diagnosticLog('Application is up to date', {
+                version: info.version
+            });
+        });
+
+        autoUpdater.on('download-progress', progress => {
+            diagnosticLog('Application update download progress', {
+                percent: Math.round(progress.percent)
+            });
+        });
+
+        autoUpdater.on('update-downloaded', async info => {
+            if (updatePromptShown) return;
+            updatePromptShown = true;
+
+            diagnosticLog('Application update downloaded', {
+                version: info.version
+            });
+
+            const result = await dialog.showMessageBox({
+                type: 'info',
+                title: 'Sampsons Wallpaper Engine Update',
+                message: `Version ${info.version} is ready to install!`,
+                detail: 'Restart Sampsons Wallpaper Engine to install the update.',
+                buttons: ['Restart and Install', 'Later'],
+                defaultId: 0,
+                cancelId: 1,
+                noLink: true
+            });
+
+            if (result.response === 0) {
+                diagnosticLog('User accepted application update installation');
+
+                isQuitting = true;
+                closeVideoWallpaper();
+
+                autoUpdater.quitAndInstall();
+            }
+        });
+
+        autoUpdater.on('error', error => {
+            diagnosticLog('Application updater error', {
+                message: error.message,
+                stack: error.stack
+            });
+        });
+
+        autoUpdater.checkForUpdates().catch(error => {
+            diagnosticLog('Could not check for application updates', {
+                message: error.message,
+                stack: error.stack
+            });
+        });
+    }
+
     // APP STARTUP
 
     app.whenReady().then(async () => {
@@ -1077,6 +1153,7 @@ if (!gotSingleInstanceLock) {
             diagnosticLog: videoDiagnosticFile()
         });
 
+        setupAutoUpdates();
         const settings = readSettings();
 
         applyStartupSetting(settings.autoOpen);
